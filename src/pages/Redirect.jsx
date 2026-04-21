@@ -84,21 +84,11 @@ export function Redirect() {
 
       const fbc = fbclid ? `fb.1.${Date.now()}.${fbclid}` : null
 
-      const [fbp, accountRes, campaignRes] = await Promise.all([
-        waitForFbp(3000),
-        supabase
-          .from('accounts')
-          .select('whatsapp_number, meta_pixel_id, whatsapp_message')
-          .eq('id', accountId)
-          .maybeSingle(),
-        supabase
-          .from('campaigns')
-          .select('id')
-          .eq('account_id', accountId)
-          .eq('slug', campaignSlug)
-          .eq('active', true)
-          .maybeSingle(),
-      ])
+      const accountRes = await supabase
+        .from('accounts')
+        .select('whatsapp_number, meta_pixel_id, whatsapp_message')
+        .eq('id', accountId)
+        .maybeSingle()
 
       if (cancelled) return
 
@@ -116,6 +106,19 @@ export function Redirect() {
       if (pixelId) {
         initMetaPixel(pixelId)
       }
+
+      const [fbp, campaignRes] = await Promise.all([
+        waitForFbp(3000),
+        supabase
+          .from('campaigns')
+          .select('id')
+          .eq('account_id', accountId)
+          .eq('slug', campaignSlug)
+          .eq('active', true)
+          .maybeSingle(),
+      ])
+
+      if (cancelled) return
 
       const campaign = campaignRes.data
       if (campaignRes.error) {
