@@ -159,11 +159,14 @@ export function Redirect() {
   }, [accountId, campaignSlug, searchParams.toString()])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a]">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0a0a0a]">
       {error ? (
         <p className="max-w-sm px-4 text-center text-sm text-foreground/80">{error}</p>
       ) : (
-        <Spinner />
+        <>
+          <Spinner />
+          <p className="text-sm font-medium tracking-wide text-foreground/60">Redirecionando...</p>
+        </>
       )}
     </div>
   )
