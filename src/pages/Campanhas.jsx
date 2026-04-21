@@ -22,6 +22,7 @@ export function Campanhas() {
   const [newSlug, setNewSlug] = useState('')
   const [saving, setSaving] = useState(false)
   const [togglingId, setTogglingId] = useState(null)
+  const [removingId, setRemovingId] = useState(null)
   const [baseUrl, setBaseUrl] = useState('')
 
   useEffect(() => {
@@ -73,6 +74,22 @@ export function Campanhas() {
       await load()
     } finally {
       setTogglingId(null)
+    }
+  }
+
+  async function removeCampaign(row) {
+    if (!window.confirm('Tem certeza que deseja remover esta campanha?')) return
+    setRemovingId(row.id)
+    try {
+      const { error } = await supabase.from('campaigns').delete().eq('id', row.id)
+      if (error) {
+        toast.error(error.message)
+        return
+      }
+      setCampaigns((prev) => prev.filter((x) => x.id !== row.id))
+      toast.success('Campanha removida')
+    } finally {
+      setRemovingId(null)
     }
   }
 
@@ -199,6 +216,14 @@ export function Campanhas() {
                           className="rounded border border-border px-2 py-1 text-xs font-medium hover:border-primary/40 disabled:opacity-50"
                         >
                           {togglingId === c.id ? '…' : c.active ? 'Desativar' : 'Ativar'}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={removingId === c.id}
+                          onClick={() => removeCampaign(c)}
+                          className="rounded border border-border px-2 py-1 text-xs font-medium text-red-500 hover:text-red-400 disabled:opacity-50"
+                        >
+                          {removingId === c.id ? '…' : 'Remover'}
                         </button>
                       </div>
                     </td>
